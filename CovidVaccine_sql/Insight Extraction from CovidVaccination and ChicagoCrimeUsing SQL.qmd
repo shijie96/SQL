@@ -1,0 +1,140 @@
+---
+title: "Data Mining On CovidVaccination and ChicagoCrime Using SQL"
+author: "Shijie Geng"
+format: 
+  html
+---
+
+### Load neccesary libraries
+```{python}
+import pandas as pd
+import pyodbc
+import matplotlib.pyplot as plt
+print(pyodbc.drivers())
+```
+
+### Define server, database, driver trusted_connection for local machine database connection below
+```{python}
+server = r"DESKTOP-FT8NVCI\SQLEXPRESS" # use 'r' to handle backlashes
+database = "Portfolio" 
+driver = "ODBC Driver 17 for SQL Server" # check the driver version from above step
+trusted_connection = "yes" # uses windows authentication
+```
+
+### Create a connection to Database
+```{python}
+conn = pyodbc.connect(f"DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection={trusted_connection}")
+
+```
+
+## Data Mining on CovidVaccination
+1. List the cases of total covid contraction and deaths ordered by date and countries alphabetically
+```{python}
+query_1 = "select location, date, total_cases, total_deaths, new_cases, population from Portfolio.dbo.CovidDeaths order by 1,2"
+
+df = pd.read_sql(query_1, conn)
+
+print(df)
+```
+
+2. List the total cases and total deaths, and calculate the percentage of deaths relative to the total COVID-19 cases in your country.
+```{python, echo = false, message = false, cache = true}
+query_2 = "select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as Deathpercentage from Portfolio.dbo.CovidDeaths where location like '%china%' and total_cases is not null order by 1,2"
+
+df_1 = pd.read_sql(query_2, conn)
+df_1
+
+plt.figure(figsize = (12,12))
+
+plt.plot(df_1['date'], df_1['Deathpercentage'], color = 'red')
+plt.xlabel('Date')
+plt.ylabel('Percentage of Covid_19 Deaths')
+plt.title('Covid19 Deaths Daily in China')
+plt.grid(False)
+plt.show()
+
+```
+
+3. The total Covid-19 contraction cases verse the total population
+```{python}
+query_3 = "select location, date, total_cases, population, (total_cases/population)*100 as contractionpercentage from Portfolio.dbo.CovidDeaths where location like '%china%' and total_cases is not null order by 2"
+df_2 = pd.read_sql(query_3, conn)
+df_2
+
+plt.figure(figsize=(12,12))
+plt.plot(df_2['date'], df_2['contractionpercentage'], label = 'Contraction Percentage', color = 'red')
+plt.xlabel('Date')
+plt.title('COVID-19 Total Cases and Contraction Percentage in China Over Time')
+plt.show()
+```
+
+4. countries with highest Infection rate compared to population
+
+```{python}
+
+query_4 = "select location, max(cast(total_deaths as int)) as TotalDeathCount from dbo.CovidDeaths where total_deaths is not null group by location order by TotalDeathCount desc "
+
+df_3 = pd.read_sql(query_4, conn)
+df_3
+
+df_sorted = df_3.sort_values(by = 'TotalDeathCount', ascending= False).head(20)
+
+plt.figure(figsize= (12,8))
+plt.barh(df_sorted['location'], df_sorted['TotalDeathCount'], color = 'royalblue')
+plt.xlabel('Total Death Count')
+plt.ylabel('Location')
+plt.title('Top 20 Location with Height COVID - 19 Deaths')
+plt.gca().invert_yaxis()
+plt.show()
+
+```
+
+5. Find out the country with Highest death per population
+```{python}
+query_5 = "select location, max(cast(total_deaths as int)) as totalDeathCount from dbo.CovidDeaths where continent is null group by location order by totalDeathCount desc"
+
+df_4 = pd.read_sql(query_5, conn)
+df_4
+
+plt.figure(figsize = (12,8))
+plt.bar(df_4['location'], df_4['totalDeathCount'], color = 'navy')
+plt.xlabel('Location')
+plt.setp(plt.gca().get_xticklabels(), rotation=45, ha='right')
+plt.ylabel('Total Death Count')
+plt.title('Top 11 regions around the world with the Highest death per population')
+plt.show()
+
+```
+
+6. Find the continents with highest death count per population
+```{python}
+query_6 = "select continent, max(cast(total_deaths as int)) as totaldeathcount from dbo.CovidDeaths where continent is not null group by continent order by totaldeathcount desc"
+
+df_5 = pd.read_sql(query_6, conn)
+df_5
+
+plt.figure(figsize=(12,8))
+plt.barh(df_5['continent'], df_5['totaldeathcount'], color = 'crimson')
+plt.xlabel('Total Death Count')
+plt.ylabel('continent')
+plt.title('Top 5 continent with the highest COVID Death')
+plt.gca().invert_yaxis()
+plt.show()
+```
+
+7. Calculate the percentage of new deaths relative to the total number of new cases for each continent
+
+```{python}
+query_6 = "select date, sum(new_cases) as totalnewcases, sum(new_deaths) as totalnewdeaths, (sum(new_cases)/sum(new_cases)*100) as percentage from dbo.CovidDeaths where continent is not null and new_cases is not null group by date order by 1"
+
+df_6 = pd.read_sql(query_6, conn)
+df_6
+```
+
+8. Calculate the percentage of vaccination related to the total population
+```{python}
+query_7 = "select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) as Rollingpeoplevaccinated, (SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) / dea.population) as VaccinationRate from dbo.CovidDeaths dea join dbo.CovidVaccination vac on dea.location = vac.location and dea.date = vac.date where dea.continent is not null and vac.new_vaccinations is not null order by 2, 3"
+
+df_7 = pd.read_sql(query_7, conn)
+df_7
+```
