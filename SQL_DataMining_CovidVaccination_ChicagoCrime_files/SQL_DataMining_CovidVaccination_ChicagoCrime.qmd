@@ -1,5 +1,5 @@
 ---
-title: "Data Mining On CovidVaccination and ChicagoCrime Using SQL"
+title: "Data Mining on COVID-19 Vaccination and Chicago Crime Data Using SQL and Python"
 author: "Shijie Geng"
 format: 
   html
