@@ -58,16 +58,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/clipboard/clipboard.min.js"></script>
-<script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/quarto.js"></script>
-<script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/popper.min.js"></script>
-<script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/anchor.min.js"></script>
-<link href="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="Insight Extraction from CovidVaccination and ChicagoCrimeUsing SQL_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/clipboard/clipboard.min.js"></script>
+<script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/quarto.js"></script>
+<script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/popper.min.js"></script>
+<script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/anchor.min.js"></script>
+<link href="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="SQL_DataMining_CovidVaccination_ChicagoCrime_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-neccesary-libraries" class="level3">
 <h3 class="anchored" data-anchor-id="load-neccesary-libraries">Load neccesary libraries</h3>
-<div id="d860de24" class="cell" data-execution_count="1">
+<div id="32db5cd5" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyodbc</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -120,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below" class="level3">
 <h3 class="anchored" data-anchor-id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below">Define server, database, driver trusted_connection for local machine database connection below</h3>
-<div id="69104029" class="cell" data-execution_count="2">
+<div id="54d628d2" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>server <span class="op">=</span> <span class="vs">r"DESKTOP-FT8NVCI\SQLEXPRESS"</span> <span class="co"># use 'r' to handle backlashes</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>database <span class="op">=</span> <span class="st">"Portfolio"</span> </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>driver <span class="op">=</span> <span class="st">"ODBC Driver 17 for SQL Server"</span> <span class="co"># check the driver version from above step</span></span>
@@ -129,7 +129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="create-a-connection-to-database" class="level3">
 <h3 class="anchored" data-anchor-id="create-a-connection-to-database">Create a connection to Database</h3>
-<div id="2273316b" class="cell" data-execution_count="3">
+<div id="67b408e5" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> pyodbc.<span class="ex">connect</span>(<span class="ss">f"DRIVER=</span><span class="sc">{</span>driver<span class="sc">}</span><span class="ss">;SERVER=</span><span class="sc">{</span>server<span class="sc">}</span><span class="ss">;DATABASE=</span><span class="sc">{</span>database<span class="sc">}</span><span class="ss">;Trusted_Connection=</span><span class="sc">{</span>trusted_connection<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -138,14 +138,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li>List the cases of total covid contraction and deaths ordered by date and countries alphabetically</li>
 </ol>
-<div id="38074009" class="cell" data-execution_count="4">
+<div id="8f170007" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>query_1 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, new_cases, population from Portfolio.dbo.CovidDeaths order by 1,2"</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_sql(query_1, conn)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\710063519.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\710063519.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -183,7 +183,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="2" type="1">
 <li>List the total cases and total deaths, and calculate the percentage of deaths relative to the total COVID-19 cases in your country.</li>
 </ol>
-<div id="1327cf24" class="cell" data-execution_count="5">
+<div id="7e0face1" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>query_2 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as Deathpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 1,2"</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df_1 <span class="op">=</span> pd.read_sql(query_2, conn)</span>
@@ -198,7 +198,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">False</span>)</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\1941656509.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\1941656509.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -206,7 +206,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insight%20Extraction%20from%20CovidVaccination%20and%20ChicagoCrimeUsing%20SQL_files/figure-html/cell-6-output-2.png" width="948" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-6-output-2.png" width="948" height="967" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -214,7 +214,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="3" type="1">
 <li>The total Covid-19 contraction cases verse the total population</li>
 </ol>
-<div id="89d20038" class="cell" data-execution_count="6">
+<div id="679b04a3" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>query_3 <span class="op">=</span> <span class="st">"select location, date, total_cases, population, (total_cases/population)*100 as contractionpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 2"</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_2 <span class="op">=</span> pd.read_sql(query_3, conn)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_2</span>
@@ -225,7 +225,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'COVID-19 Total Cases and Contraction Percentage in China Over Time'</span>)</span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\1761847544.py:2: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\1761847544.py:2: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -233,7 +233,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insight%20Extraction%20from%20CovidVaccination%20and%20ChicagoCrimeUsing%20SQL_files/figure-html/cell-7-output-2.png" width="930" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-7-output-2.png" width="930" height="967" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -241,7 +241,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="4" type="1">
 <li>countries with highest Infection rate compared to population</li>
 </ol>
-<div id="c45989aa" class="cell" data-execution_count="7">
+<div id="11db3873" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>query_4 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as TotalDeathCount from dbo.CovidDeaths where total_deaths is not null group by location order by TotalDeathCount desc "</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df_3 <span class="op">=</span> pd.read_sql(query_4, conn)</span>
@@ -257,7 +257,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\2247069215.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\2247069215.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -265,7 +265,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insight%20Extraction%20from%20CovidVaccination%20and%20ChicagoCrimeUsing%20SQL_files/figure-html/cell-8-output-2.png" width="1083" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-8-output-2.png" width="1083" height="671" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -273,7 +273,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="5" type="1">
 <li>Find out the country with Highest death per population</li>
 </ol>
-<div id="767295cd" class="cell" data-execution_count="8">
+<div id="54a0cb6a" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>query_5 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as totalDeathCount from dbo.CovidDeaths where continent is null group by location order by totalDeathCount desc"</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>df_4 <span class="op">=</span> pd.read_sql(query_5, conn)</span>
@@ -287,7 +287,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 11 regions around the world with the Highest death per population'</span>)</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\3189382329.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\3189382329.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -295,7 +295,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insight%20Extraction%20from%20CovidVaccination%20and%20ChicagoCrimeUsing%20SQL_files/figure-html/cell-9-output-2.png" width="948" height="769" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-9-output-2.png" width="948" height="769" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -303,7 +303,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="6" type="1">
 <li>Find the continents with highest death count per population</li>
 </ol>
-<div id="1ad6cc44" class="cell" data-execution_count="9">
+<div id="901de715" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select continent, max(cast(total_deaths as int)) as totaldeathcount from dbo.CovidDeaths where continent is not null group by continent order by totaldeathcount desc"</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df_5 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
@@ -317,7 +317,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\2149077737.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\2149077737.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -325,7 +325,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Insight%20Extraction%20from%20CovidVaccination%20and%20ChicagoCrimeUsing%20SQL_files/figure-html/cell-10-output-2.png" width="1047" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-10-output-2.png" width="1047" height="671" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -333,13 +333,13 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="7" type="1">
 <li>Calculate the percentage of new deaths relative to the total number of new cases for each continent</li>
 </ol>
-<div id="1195f34e" class="cell" data-execution_count="10">
+<div id="fb27276c" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select date, sum(new_cases) as totalnewcases, sum(new_deaths) as totalnewdeaths, (sum(new_cases)/sum(new_cases)*100) as percentage from dbo.CovidDeaths where continent is not null and new_cases is not null group by date order by 1"</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_6 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>df_6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\3458627867.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\3458627867.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
@@ -446,13 +446,13 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="8" type="1">
 <li>Calculate the percentage of vaccination related to the total population</li>
 </ol>
-<div id="7c1a163e" class="cell" data-execution_count="11">
+<div id="802075ac" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>query_7 <span class="op">=</span> <span class="st">"select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) as Rollingpeoplevaccinated, (SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) / dea.population) as VaccinationRate from dbo.CovidDeaths dea join dbo.CovidVaccination vac on dea.location = vac.location and dea.date = vac.date where dea.continent is not null and vac.new_vaccinations is not null order by 2, 3"</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>df_7 <span class="op">=</span> pd.read_sql(query_7, conn)</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df_7</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23364\2716823413.py:3: UserWarning:
+<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_23768\2716823413.py:3: UserWarning:
 
 pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 </code></pre>
