@@ -21,40 +21,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -106,13 +72,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="covid-vaccination-project" class="level2">
+<h2 class="anchored" data-anchor-id="covid-vaccination-project">Covid Vaccination Project</h2>
 <section id="load-neccesary-libraries" class="level3">
 <h3 class="anchored" data-anchor-id="load-neccesary-libraries">Load neccesary libraries</h3>
-<div id="67802f02" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyodbc</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pyodbc.drivers())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="e2bee14e" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>['SQL Server', 'SQL Server Native Client RDA 11.0', 'ODBC Driver 17 for SQL Server', 'Microsoft Access Driver (*.mdb, *.accdb)', 'Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)', 'Microsoft Access Text Driver (*.txt, *.csv)', 'Microsoft Access dBASE Driver (*.dbf, *.ndx, *.mdx)']</code></pre>
 </div>
@@ -120,36 +84,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below" class="level3">
 <h3 class="anchored" data-anchor-id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below">Define server, database, driver trusted_connection for local machine database connection below</h3>
-<div id="3faf0fc8" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>server <span class="op">=</span> <span class="vs">r"DESKTOP-FT8NVCI\SQLEXPRESS"</span> <span class="co"># use 'r' to handle backlashes</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>database <span class="op">=</span> <span class="st">"Portfolio"</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>driver <span class="op">=</span> <span class="st">"ODBC Driver 17 for SQL Server"</span> <span class="co"># check the driver version from above step</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>trusted_connection <span class="op">=</span> <span class="st">"yes"</span> <span class="co"># uses windows authentication</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 </section>
 <section id="create-a-connection-to-database" class="level3">
 <h3 class="anchored" data-anchor-id="create-a-connection-to-database">Create a connection to Database</h3>
-<div id="237f2e36" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> pyodbc.<span class="ex">connect</span>(<span class="ss">f"DRIVER=</span><span class="sc">{</span>driver<span class="sc">}</span><span class="ss">;SERVER=</span><span class="sc">{</span>server<span class="sc">}</span><span class="ss">;DATABASE=</span><span class="sc">{</span>database<span class="sc">}</span><span class="ss">;Trusted_Connection=</span><span class="sc">{</span>trusted_connection<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+</section>
 </section>
 <section id="data-mining-on-covidvaccination" class="level2">
 <h2 class="anchored" data-anchor-id="data-mining-on-covidvaccination">Data Mining on CovidVaccination</h2>
 <ol type="1">
 <li>List the cases of total covid contraction and deaths ordered by date and countries alphabetically</li>
 </ol>
-<div id="eb212bd3" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>query_1 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, new_cases, population from Portfolio.dbo.CovidDeaths order by 1,2"</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_sql(query_1, conn)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\710063519.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="84c39d56" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-stdout">
 <pre><code>           location        date  total_cases  total_deaths  new_cases  \
 0       Afghanistan  2020-01-05          NaN           NaN        0.0   
@@ -183,30 +128,11 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="2" type="1">
 <li>List the total cases and total deaths, and calculate the percentage of deaths relative to the total COVID-19 cases in your country.</li>
 </ol>
-<div id="10797583" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>query_2 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as Deathpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 1,2"</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df_1 <span class="op">=</span> pd.read_sql(query_2, conn)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>df_1</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">12</span>,<span class="dv">12</span>))</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>plt.plot(df_1[<span class="st">'date'</span>], df_1[<span class="st">'Deathpercentage'</span>], color <span class="op">=</span> <span class="st">'red'</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Percentage of Covid_19 Deaths'</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Covid19 Deaths Daily in China'</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">False</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\1941656509.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="ceacbb80" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-6-output-2.png" width="948" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-6-output-1.png" width="948" height="967" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -214,26 +140,11 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="3" type="1">
 <li>The total Covid-19 contraction cases verse the total population</li>
 </ol>
-<div id="791d02af" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>query_3 <span class="op">=</span> <span class="st">"select location, date, total_cases, population, (total_cases/population)*100 as contractionpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 2"</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_2 <span class="op">=</span> pd.read_sql(query_3, conn)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_2</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">12</span>))</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.plot(df_2[<span class="st">'date'</span>], df_2[<span class="st">'contractionpercentage'</span>], label <span class="op">=</span> <span class="st">'Contraction Percentage'</span>, color <span class="op">=</span> <span class="st">'red'</span>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'COVID-19 Total Cases and Contraction Percentage in China Over Time'</span>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\1761847544.py:2: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="e6608a36" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-7-output-2.png" width="930" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-7-output-1.png" width="930" height="967" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -241,31 +152,11 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="4" type="1">
 <li>countries with highest Infection rate compared to population</li>
 </ol>
-<div id="7a5151c0" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>query_4 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as TotalDeathCount from dbo.CovidDeaths where total_deaths is not null group by location order by TotalDeathCount desc "</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df_3 <span class="op">=</span> pd.read_sql(query_4, conn)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df_3</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>df_sorted <span class="op">=</span> df_3.sort_values(by <span class="op">=</span> <span class="st">'TotalDeathCount'</span>, ascending<span class="op">=</span> <span class="va">False</span>).head(<span class="dv">20</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span> (<span class="dv">12</span>,<span class="dv">8</span>))</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>plt.barh(df_sorted[<span class="st">'location'</span>], df_sorted[<span class="st">'TotalDeathCount'</span>], color <span class="op">=</span> <span class="st">'royalblue'</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Total Death Count'</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Location'</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 20 Location with Height COVID - 19 Deaths'</span>)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\2247069215.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="076ba971" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-8-output-2.png" width="1083" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-8-output-1.png" width="1083" height="671" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -273,29 +164,11 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="5" type="1">
 <li>Find out the country with Highest death per population</li>
 </ol>
-<div id="1b55eb00" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>query_5 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as totalDeathCount from dbo.CovidDeaths where continent is null group by location order by totalDeathCount desc"</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>df_4 <span class="op">=</span> pd.read_sql(query_5, conn)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>df_4</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">12</span>,<span class="dv">8</span>))</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>plt.bar(df_4[<span class="st">'location'</span>], df_4[<span class="st">'totalDeathCount'</span>], color <span class="op">=</span> <span class="st">'navy'</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Location'</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.setp(plt.gca().get_xticklabels(), rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Total Death Count'</span>)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 11 regions around the world with the Highest death per population'</span>)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\3189382329.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="e24746e4" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-9-output-2.png" width="948" height="769" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-9-output-1.png" width="948" height="769" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -303,29 +176,11 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="6" type="1">
 <li>Find the continents with highest death count per population</li>
 </ol>
-<div id="3c1e38fc" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select continent, max(cast(total_deaths as int)) as totaldeathcount from dbo.CovidDeaths where continent is not null group by continent order by totaldeathcount desc"</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df_5 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>df_5</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.barh(df_5[<span class="st">'continent'</span>], df_5[<span class="st">'totaldeathcount'</span>], color <span class="op">=</span> <span class="st">'crimson'</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Total Death Count'</span>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'continent'</span>)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 5 continent with the highest COVID Death'</span>)</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\2149077737.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="c7ffa282" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-10-output-2.png" width="1047" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-10-output-1.png" width="1047" height="671" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -333,17 +188,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="7" type="1">
 <li>Calculate the percentage of new deaths relative to the total number of new cases for each continent</li>
 </ol>
-<div id="db22a0ad" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select date, sum(new_cases) as totalnewcases, sum(new_deaths) as totalnewdeaths, (sum(new_cases)/sum(new_cases)*100) as percentage from dbo.CovidDeaths where continent is not null and new_cases is not null group by date order by 1"</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_6 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>df_6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\3458627867.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="ff2852de" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
@@ -446,17 +291,7 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 <ol start="8" type="1">
 <li>Calculate the percentage of vaccination related to the total population</li>
 </ol>
-<div id="4eaeb1a5" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>query_7 <span class="op">=</span> <span class="st">"select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) as Rollingpeoplevaccinated, (SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) / dea.population) as VaccinationRate from dbo.CovidDeaths dea join dbo.CovidVaccination vac on dea.location = vac.location and dea.date = vac.date where dea.continent is not null and vac.new_vaccinations is not null order by 2, 3"</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>df_7 <span class="op">=</span> pd.read_sql(query_7, conn)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df_7</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>C:\Users\shiji\AppData\Local\Temp\ipykernel_4092\2716823413.py:3: UserWarning:
-
-pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-</code></pre>
-</div>
+<div id="b1b5f2f2" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
@@ -589,6 +424,617 @@ pandas only supports SQLAlchemy connectable (engine/connection) or database stri
 </table>
 
 <p>53836 rows × 7 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="chicago-crime-project" class="level2">
+<h2 class="anchored" data-anchor-id="chicago-crime-project">Chicago Crime Project</h2>
+<ol type="1">
+<li><p>Database, Server connection</p></li>
+<li><p>List the total number of reported crimes between 2018 and 2022</p></li>
+</ol>
+<div id="d9ec64e6" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">years</th>
+<th data-quarto-table-cell-role="th">Reported Crime</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2018</td>
+<td>268429</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2019</td>
+<td>260882</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2021</td>
+<td>208431</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2022</td>
+<td>238340</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="5ef82f12" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-16-output-1.png" width="464" height="464" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li>List the total number of homicides, batteries, and assults reported between 2018 and 2022</li>
+</ol>
+<div id="91f4c226" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-17-output-1.png" width="465" height="464" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li>Which are the most common crimes reported and what percentage amount are they from the total amount of reported crimes?</li>
+</ol>
+<div id="c2200cf2" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">crime_type</th>
+<th data-quarto-table-cell-role="th">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">20</td>
+<td>theft</td>
+<td>22.83</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">32</td>
+<td>battery</td>
+<td>18.50</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">22</td>
+<td>criminal damage</td>
+<td>10.92</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">16</td>
+<td>assault</td>
+<td>8.41</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>deceptive practice</td>
+<td>7.42</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">30</td>
+<td>other offense</td>
+<td>6.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>motor vehicle theft</td>
+<td>5.22</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">28</td>
+<td>narcotics</td>
+<td>3.96</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">13</td>
+<td>burglary</td>
+<td>3.64</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">6</td>
+<td>robbery</td>
+<td>3.54</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>weapons violation</td>
+<td>3.03</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>criminal trespass</td>
+<td>2.19</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">7</td>
+<td>offense involving children</td>
+<td>0.88</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>sex offense</td>
+<td>0.50</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5</td>
+<td>public peace violation</td>
+<td>0.43</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="51c22632" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>([&lt;matplotlib.patches.Wedge at 0x1e29141f150&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e29144f9d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e29145d7d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e29145f4d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291468f50&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e29146aed0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291474e50&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291476c90&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291469050&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b72790&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b784d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b7a2d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b840d0&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b85e50&gt;,
+  &lt;matplotlib.patches.Wedge at 0x1e291b87b90&gt;],
+ [Text(-1.0760088355497333, -0.22848410408364742, 'theft'),
+  Text(-0.03836204841841132, -1.0993308661368257, 'battery'),
+  Text(0.8681096776869501, -0.6755631632247718, 'criminal damage'),
+  Text(1.0990836706776914, -0.044889696475381866, 'assault'),
+  Text(0.9820580490844486, 0.4955421154941798, 'deceptive practice'),
+  Text(0.6743085177023551, 0.8690845890671706, 'other offense'),
+  Text(0.3112403360920765, 1.0550495027197972, 'motor vehicle theft'),
+  Text(-0.008591771737708807, 1.0999664456056863, 'narcotics'),
+  Text(-0.27402838875209795, 1.065320816542101, 'burglary'),
+  Text(-0.5101448684372831, 0.9745523142485001, 'robbery'),
+  Text(-0.7028498717105333, 0.8461690480255628, 'weapons violation'),
+  Text(-0.8341278734391198, 0.7170988012484276, 'criminal trespass'),
+  Text(-0.9006337552319992, 0.6315527206312292, 'offense involving children'),
+  Text(-0.9277173231186924, 0.5910503941166844, 'sex offense'),
+  Text(-0.9449457842812646, 0.5630963192643561, 'public peace violation')],
+ [Text(-0.5869139102998545, -0.12462769313653493, '23.3%'),
+  Text(-0.02092475368276981, -0.599635017892814, '18.9%'),
+  Text(0.47351436964742727, -0.3684889981226028, '11.2%'),
+  Text(0.5995001840060135, -0.024485288986571922, '8.6%'),
+  Text(0.5356680267733356, 0.27029569936046166, '7.6%'),
+  Text(0.3678046460194664, 0.4740461394911839, '6.5%'),
+  Text(0.16976745605022356, 0.5754815469380712, '5.3%'),
+  Text(-0.004686420947841167, 0.5999816976031015, '4.0%'),
+  Text(-0.14947003022841704, 0.581084081750237, '3.7%'),
+  Text(-0.27826083732942714, 0.5315739895900908, '3.6%'),
+  Text(-0.38337265729665443, 0.4615467534684887, '3.1%'),
+  Text(-0.4549788400577016, 0.3911448006809605, '2.2%'),
+  Text(-0.49125477558109043, 0.3444833021624887, '0.9%'),
+  Text(-0.506027630792014, 0.32239112406364595, '0.5%'),
+  Text(-0.5154249732443261, 0.30714344687146694, '0.4%')])</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-19-output-2.png" width="748" height="611" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="4" type="1">
+<li>What are the top ten communities that had the MOST number of crimes reported? Include the current population, density, and order by the number of reported crimes.</li>
+</ol>
+<div id="932a5115" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">community_name</th>
+<th data-quarto-table-cell-role="th">population</th>
+<th data-quarto-table-cell-role="th">density</th>
+<th data-quarto-table-cell-role="th">Number of Crimes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>austin</td>
+<td>96557</td>
+<td>13504.480469</td>
+<td>53851</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>near north side</td>
+<td>105481</td>
+<td>38496.718750</td>
+<td>44584</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>near west side</td>
+<td>67881</td>
+<td>11929.879883</td>
+<td>35193</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>loop</td>
+<td>42298</td>
+<td>25635.150391</td>
+<td>34941</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>south shore</td>
+<td>53971</td>
+<td>18420.140625</td>
+<td>33138</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>north lawndale</td>
+<td>34794</td>
+<td>10839.250000</td>
+<td>31860</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>humboldt park</td>
+<td>54165</td>
+<td>15045.830078</td>
+<td>28303</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>west town</td>
+<td>87781</td>
+<td>19166.160156</td>
+<td>27481</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>auburn gresham</td>
+<td>44878</td>
+<td>11903.980469</td>
+<td>27400</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>roseland</td>
+<td>38816</td>
+<td>8053.109863</td>
+<td>24820</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e753ef38" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-21-output-1.png" width="994" height="600" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="5" type="1">
+<li>What are the top communities that had the LEAST number of crimes reported? Include the current population, density , and order by the number of reported crimes.</li>
+</ol>
+<div id="7a124386" class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">community_name</th>
+<th data-quarto-table-cell-role="th">population</th>
+<th data-quarto-table-cell-role="th">density</th>
+<th data-quarto-table-cell-role="th">Number of Crimes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>edison park</td>
+<td>11525</td>
+<td>10199.120117</td>
+<td>1067</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="6" type="1">
+<li>What month had the most crimes reported and what was the average and median temperature high in the last five years?</li>
+</ol>
+<div id="018976f2" class="cell" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="22">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Mon</th>
+<th data-quarto-table-cell-role="th">crimenum</th>
+<th data-quarto-table-cell-role="th">averagehigh</th>
+<th data-quarto-table-cell-role="th">mediantemp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>1074</td>
+<td>31</td>
+<td>32</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="7" type="1">
+<li>What month had the most homicides reported and what was the average and median temperature high in the last five years?</li>
+</ol>
+<div id="6b6210be" class="cell" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Mon</th>
+<th data-quarto-table-cell-role="th">homicount</th>
+<th data-quarto-table-cell-role="th">averagehigh</th>
+<th data-quarto-table-cell-role="th">mediantemp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>5</td>
+<td>43</td>
+<td>70</td>
+<td>70</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="8" type="1">
+<li>List the most violent year and the number of arrests with percentage. Order by the number of crimes in descending order. Determine the most violent year by the number of reported Homicides, Assaults and Battery for that year.</li>
+</ol>
+<div id="714c2285" class="cell" data-execution_count="24">
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Years</th>
+<th data-quarto-table-cell-role="th">Violentnum</th>
+<th data-quarto-table-cell-role="th">arrest</th>
+<th data-quarto-table-cell-role="th">percentages</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2021</td>
+<td>61573</td>
+<td>7850.0</td>
+<td>12.75</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2022</td>
+<td>62369</td>
+<td>8154.0</td>
+<td>13.07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2019</td>
+<td>70589</td>
+<td>14322.0</td>
+<td>20.29</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2018</td>
+<td>70772</td>
+<td>13889.0</td>
+<td>19.62</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="7f0da745" class="cell" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-26-output-1.png" width="985" height="676" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="9" type="1">
+<li>List the day of the week, year, average precipitation, average high temperature and the highest number of reported crimes for days with and without precipitation.</li>
+</ol>
+<div id="76e2f48f" class="cell" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">daayofmonth</th>
+<th data-quarto-table-cell-role="th">weekdays</th>
+<th data-quarto-table-cell-role="th">Day of Year</th>
+<th data-quarto-table-cell-role="th">avgprecip</th>
+<th data-quarto-table-cell-role="th">avgtemp</th>
+<th data-quarto-table-cell-role="th">reportednum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>15</td>
+<td>2</td>
+<td>46</td>
+<td>0.19</td>
+<td>12.0</td>
+<td>337</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>30</td>
+<td>4</td>
+<td>30</td>
+<td>0.00</td>
+<td>NaN</td>
+<td>341</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>31</td>
+<td>1</td>
+<td>31</td>
+<td>0.29</td>
+<td>32.0</td>
+<td>341</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>16</td>
+<td>3</td>
+<td>47</td>
+<td>0.01</td>
+<td>20.0</td>
+<td>366</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>7</td>
+<td>1</td>
+<td>38</td>
+<td>0.00</td>
+<td>5.0</td>
+<td>382</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1455</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>0.00</td>
+<td>1.0</td>
+<td>985</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1456</td>
+<td>1</td>
+<td>1</td>
+<td>182</td>
+<td>0.24</td>
+<td>94.0</td>
+<td>986</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1457</td>
+<td>1</td>
+<td>3</td>
+<td>121</td>
+<td>0.00</td>
+<td>86.0</td>
+<td>1011</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1458</td>
+<td>1</td>
+<td>6</td>
+<td>152</td>
+<td>0.00</td>
+<td>76.0</td>
+<td>1022</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1459</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+<td>0.01</td>
+<td>34.0</td>
+<td>1096</td>
+</tr>
+</tbody>
+</table>
+
+<p>1460 rows × 6 columns</p>
 </div>
 </div>
 </div>
