@@ -3,11 +3,17 @@ title: "Data Mining on COVID-19 Vaccination and Chicago Crime Data Using SQL and
 author: "Shijie Geng"
 format: 
   html
+execute: 
+  echo: false      # Hide code
+  warning: false   # Hide warnings
+  message: false
 ---
 
+## Covid Vaccination Project
 ### Load neccesary libraries
 ```{python}
 import pandas as pd
+import numpy as np
 import pyodbc
 import matplotlib.pyplot as plt
 print(pyodbc.drivers())
@@ -137,4 +143,194 @@ query_7 = "select dea.continent, dea.location, dea.date, dea.population, vac.new
 
 df_7 = pd.read_sql(query_7, conn)
 df_7
+```
+
+## Chicago Crime Project
+1. Database, Server connection
+```{python}
+server = r"DESKTOP-FT8NVCI\SQLEXPRESS" # use 'r' to handle backlashes
+database = "Chicago_crime_ and_weather" 
+driver = "ODBC Driver 17 for SQL Server" # check the driver version from above step
+trusted_connection = "yes" # uses windows authentication
+```
+
+```{python}
+conn = pyodbc.connect(f"DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection={trusted_connection}")
+
+```
+
+2. List the total number of reported crimes between 2018 and 2022
+```{python}
+Query_8 = 'select Year(c.reported_crime_date) as years, count(*) as [Reported Crime] from Chicago.crime as c where year(c.reported_crime_date) between 2018 and 2022 group by Year(c.reported_crime_date) order by Year(c.reported_crime_date)'
+
+df_8 = pd.read_sql(Query_8, conn)
+df_8
+```
+
+```{python}
+import seaborn as sns
+sns.set_theme()
+
+sns.catplot(data = df_8, kind = 'bar',
+x = 'years', y = 'Reported Crime')
+
+```
+
+3. List the total number of homicides, batteries, and assults reported between 2018 and 2022
+```{python}
+Query_9 = """SELECT crime_type, COUNT(*) AS NumberOfCrime 
+FROM Chicago.crime 
+WHERE crime_type IN ('homicide', 'battery', 'assault') 
+GROUP BY crime_type;"""
+
+df_9 = pd.read_sql(Query_9, conn)
+df_9
+
+sns.catplot(data = df_9, x= 'crime_type', y = 'NumberOfCrime', kind = 'bar')
+```
+
+3. Which are the most common crimes reported and what percentage amount are they from the total amount of reported crimes?
+
+```{python}
+Query_10 = """ with percentages as ( select crime_type, count(*) as number from chicago.crime group by crime_type)
+select crime_type, round(cast(number as float) * 100 /(select sum(number) from percentages),2) as [Percentage] from percentages
+"""
+df_10 = pd.read_sql(Query_10, conn).sort_values(by = 'Percentage', ascending= False).head(15)
+df_10
+```
+
+```{python}
+plt.figure(figsize=(12,8))
+plt.pie(df_10['Percentage'], labels = df_10['crime_type'],  autopct='%1.1f%%',startangle= 150 )
+```
+
+4. What are the top ten communities that had the MOST number of crimes reported? Include the current population, density, and order by the number of reported crimes. 
+
+```{python}
+Query_11 = """
+select top 10 n.community_name, n.population as [population], n.density, count(c.crime_type) as [Number of Crimes] from chicago.crime c join chicago.community n on c.community_id = n.community_id group by n.community_name, n.population, n.density order by [Number of Crimes] desc
+
+"""
+
+df_11 = pd.read_sql(Query_11, conn)
+df_11
+
+```
+
+```{python}
+# Set positions and width for bars
+x = np.arange(len(df_11['community_name']))  # Label locations
+bar_width = 0.3  
+
+# Create figure
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Plot bars
+ax.bar(x - bar_width, df_11['population'], width=bar_width, label='Population', color='blue')
+ax.bar(x, df_11['density'], width=bar_width, label='Density', color='orange')
+ax.bar(x + bar_width, df_11['Number of Crimes'], width=bar_width, label='Number of Crimes', color='green')
+
+# Format x-axis
+ax.set_xticks(x)
+ax.set_xticklabels(df_11['community_name'], rotation=45, ha="right")
+
+# Labels and title
+ax.set_ylabel("Values")
+ax.set_xlabel("Community Name")
+ax.set_title("Clustered Column Chart of Community Data")
+ax.legend()
+
+# Show plot
+plt.show()
+```
+
+5. What are the top communities that had the LEAST number of crimes reported? Include the current population, density , and order by the number of reported crimes.
+```{python}
+Query_12 = """
+select top 1 n.community_name, n.population as [population], n.density, count(c.crime_type) as [Number of Crimes] from chicago.crime c join chicago.community n on c.community_id = n.community_id group by n.community_name, n.population, n.density order by [Number of Crimes] ASC
+
+"""
+df_12 = pd.read_sql(Query_12, conn)
+df_12
+```
+
+6. What month had the most crimes reported and what was the average and median temperature high in the last five years?
+
+```{python}
+Query_13 = """
+with subquery as (select w.weather_date,
+c.crime_type, temp_high, PERCENTILE_DISC(0.5) within group (order by temp_high) over (partition by (month(w.weather_date))) as mediantemp from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date group by w.weather_date,c.crime_type, w.temp_high)
+
+select top 1 MONTH(weather_date) AS Mon,
+COUNT(crime_type) OVER (PARTITION BY MONTH(weather_date)) AS crimenum, AVG(temp_high) OVER (PARTITION BY MONTH(weather_date)) AS averagehigh, AVG(mediantemp) OVER (PARTITION BY MONTH(weather_date)) AS mediantemp from subquery group by Month(weather_date), temp_high, mediantemp, crime_type
+
+"""
+df_13 = pd.read_sql(Query_13, conn)
+df_13
+```
+
+7. What month had the most homicides reported and what was the average and median temperature high in the last five years?
+```{python}
+Query_14 = """
+with subquery as (select w.weather_date,
+c.crime_type as homicide, w.temp_high
+from chicago.crime c join chicago.weather w
+on c.reported_crime_date = w.weather_date
+where c.crime_type = 'homicide')
+
+select top 1 MONTH(weather_date) as Mon,
+count(homicide) over (partition by (MONTH(weather_date))) as homicount, AVG(temp_high) OVER (PARTITION BY MONTH(weather_date)) AS averagehigh, PERCENTILE_DISC(0.5) within group (order by temp_high) over (partition by (month(weather_date))) as mediantemp from subquery
+group by MONTH(weather_date), temp_high, homicide order by homicount desc
+
+"""
+df_14 = pd.read_sql(Query_14, conn)
+df_14
+```
+
+8. List the most violent year and the number of arrests with percentage. Order by the number of crimes in descending order. Determine the most violent year by the number of reported Homicides, Assaults and Battery for that year.
+
+```{python}
+Query_15 = """
+select Year(reported_crime_date) as Years,
+count(crime_type) as[Violentnum], sum(cast(arrest as float)) as arrest, round(sum(cast(arrest as float)) * 100/ count(crime_type),2) as percentages from chicago.crime where crime_type in ('homicide', 'assault', 'battery') group by Year(reported_crime_date)
+"""
+
+df_15 = pd.read_sql(Query_15, conn)
+df_15
+```
+
+```{python}
+x = np.arange(len(df_15['Years']))
+bar_width = 0.3
+
+fig,ax = plt.subplots(figsize= (12,8))
+
+ax.bar(x-bar_width, df_15['Violentnum'], width = bar_width, label = 'Violentnum', color = 'blue')
+ax.bar(x, df_15['arrest'], width= bar_width, label= 'arrest', color = 'orange')
+ax.bar(x+bar_width, df_15['percentages'], width=bar_width, label = 'percentages', color = 'red')
+
+ax.set_xticks(x)
+ax.set_xticklabels(df_15['Years'], rotation = 45, ha = 'right')
+
+ax.set_ylabel('Values')
+ax.set_xlabel('Year')
+ax.legend()
+
+plt.show()
+
+
+```
+
+9. List the day of the week, year, average precipitation, average high temperature and the highest number of reported crimes for days with and without precipitation.
+
+```{python}
+Query_16 = """
+select day(c.reported_crime_date) as daayofmonth, DATEPART(WEEKDAY, c.reported_crime_date) as weekdays,
+DATEPART(DAYOFYEAR, c.reported_crime_date) as [Day of Year], AVG(w.precipitation) as avgprecip, avg(w.temp_high) as avgtemp,
+count(c.crime_type) as [reportednum] from chicago.crime c join chicago.weather w
+on c.reported_crime_date = w.weather_date
+group by reported_crime_date order by reportednum
+"""
+df_16 = pd.read_sql(Query_16, conn)
+df_16
 ```
