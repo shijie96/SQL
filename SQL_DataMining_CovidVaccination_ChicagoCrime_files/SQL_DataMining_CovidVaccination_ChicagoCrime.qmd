@@ -334,3 +334,184 @@ group by reported_crime_date order by reportednum
 df_16 = pd.read_sql(Query_16, conn)
 df_16
 ```
+
+10. List the days with the most reported crimes when there is zero precipitation and the day when precipitation is greater than 5. Including the day of the week, high temperature, amount and precipitation and the total number of reported crimes for that day.
+
+```{python}
+Query_17 = """
+select DATEPART(WEEKDAY, c.reported_crime_date) as [Day of Week], w.temp_high, count(temp_high) as [Crime Amount], sum(cast(w.precipitation as float)) as Precipitation from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date group by DATEPART(WEEKDAY, c.reported_crime_date), temp_high having sum(cast(w.precipitation as float)) <>0 and sum(cast(w.precipitation as float)) > 5
+"""
+
+df_17 = pd.read_sql(Query_17, conn)
+df_17
+```
+
+11. List the most consecutive days where a homicide occurred between 2018-2022 and the timeframe.
+
+```{python}
+Query_18 = """
+WITH homicidedate as (select c.reported_crime_date, ROW_NUMBER() over (order by c.reported_crime_date) as rownumber
+from chicago.crime c where c.crime_type = 'homicide'), consecutive_date as (
+select reported_crime_date, DATEADD(day, -ROW_NUMBER() over (order by reported_crime_date), reported_crime_date) as grp from homicidedate)
+
+select TOP 1 MIN(reported_crime_date) as [start_date], MAX(reported_crime_date) as end_date, DATEDIFF(day, MIN(reported_crime_date), MAX(reported_crime_date)) + 1 as consecutive
+from consecutive_date group by grp order by consecutive desc
+"""
+
+df_18 = pd.read_sql(Query_18, conn)
+df_18
+```
+
+12. What are the top 10 most common locations for reported crimes and the number of reported crime ( add percentage) depending on the temperature?
+
+```{python}
+Query_19 = """
+WITH subquery AS (
+    SELECT 
+        CAST(location_description AS NVARCHAR(MAX)) AS location, 
+        COUNT(crime_type) AS reportedcrime,
+        RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+    FROM chicago.crime
+    GROUP BY CAST(location_description AS NVARCHAR(MAX))
+)
+SELECT TOP 10 
+    location, 
+    ROUND(reportedcrime * 100.0 / SUM(CAST(reportedcrime AS FLOAT)) OVER (), 3) AS Percentages
+FROM subquery
+ORDER BY Percentages DESC;
+"""
+
+df_19 = pd.read_sql(Query_19, conn)
+df_19
+```
+
+```{python}
+plt.figure(figsize= (12, 8))
+
+plt.pie(df_19['Percentages'], labels= df_19['location'])
+plt.show()
+```
+
+13. Calculate the year-over-year growth in the number of reported crimes.
+
+```{python}
+Query_20 = """with subquery as (select
+Year(c.reported_crime_date) as [Year],
+cast(count(*) as float) as crimeamount
+from chicago.crime c group by Year(c.reported_crime_date))
+
+select [Year], crimeamount, LAG(crimeamount) over (order by [Year]) as prev_year_crimes,
+round((crimeamount-LAG(crimeamount) over (order by [Year])) *100/ NULLIF(LAG(crimeamount) over (order by [Year]),0),2) as YoYgrowth from subquery
+"""
+
+df_20 = pd.read_sql(Query_20, conn)
+df_20
+```
+
+```{python}
+plt.figure(figsize= (12, 8))
+plt.scatter(df_20['Year'], df_20['crimeamount'], s = df_20['prev_year_crimes'], color = 'blue', alpha=0.6)
+plt.xlabel('Crime Amount')
+plt.ylabel('YoY Growth (%)')
+plt.title('Year-over-Year Crime Growth with Previous Year Crimes as Size')
+plt.grid(True)
+plt.show()
+```
+
+14. Calculate the year over year growth in the number of reported domestic violence crimes.
+
+```{python}
+Query_21 = """
+with subquery as (select Year(c.reported_crime_date) as [Year], sum(cast(c.domestic as int)) as violence from chicago.crime c group by Year(c.reported_crime_date))
+
+select Year, violence, LAG(violence) over (order by Year) as pre_year_domes, (violence - LAG(violence) over (order by Year)) * 100/ LAG(violence) over (order by Year) as YoYGrowth from subquery
+"""
+df_21 = pd.read_sql(Query_21, conn)
+df_21
+```
+
+```{python}
+plt.figure(figsize=(12, 8))
+
+# Plotting the Cluster Bar Chart
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# Bar width
+bar_width = 0.35
+
+# X positions
+x = np.arange(len(df_21['Year']))
+
+# Plotting both bars side by side
+ax.bar(x - bar_width/2, df_21['violence'], width=bar_width, label='Violence Cases', color='skyblue')
+ax.bar(x + bar_width/2, df_21['pre_year_domes'], width=bar_width, label='YoY Growth (%)', color='orange')
+
+# Labels and title
+ax.set_xlabel('Year')
+ax.set_ylabel('Count')
+ax.set_title('Violence Cases and pre_year_domes')
+ax.set_xticks(x)
+ax.set_xticklabels(df_21['Year'])
+ax.legend()
+
+# Display chart
+plt.grid(True)
+plt.show()
+```
+
+15. List the number of crimes reported and seasonal growth for each astronomical season and what was the average temperature for each season in 2022? Use a conditional statement to display either a Gain/Loss for the season and the season over season growth.
+
+```{python}
+Query_22 = """
+with subquery as(select c.reported_crime_date, case when Month( c.reported_crime_date) in (12,1,2) Then 'Winter' when Month( c.reported_crime_date) in (3,4,5) Then 'Spring' when Month( c.reported_crime_date) in (6,7,8) Then 'Summer'
+else 'Fall' end as Season, c.crime_type,w.average from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date),
+
+subquery_2 as (select Year(reported_crime_date) as [Year], Season,
+count(crime_type) as crimenumber, avg(average) as averagetemp from subquery
+--where Year(reported_crime_date) = 2020
+group by Season, Year(reported_crime_date))
+
+select Year, Season, LAG(crimenumber) over (order by Season) as pre_crime_count,
+(crimenumber - LAG(crimenumber) over (order by Season)) *100/ LAG(crimenumber) over (order by Season) as SoSgrowth, averagetemp
+from subquery_2 WHERE Year = 2022
+
+"""
+
+df_22 = pd.read_sql(Query_22, conn)
+df_22
+```
+
+```{python}
+df_22.fillna(0, inplace=True)
+
+# Plotting
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# X positions for clustered bars
+x = range(len(df_22))
+
+# Plot bars
+ax.bar(x, df_22['pre_crime_count'], width=0.4, label='Pre-Crime Count', color='skyblue', align='center')
+ax.bar(x, df_22['SoSgrowth'], width=0.4, label='SoS Growth (%)', color='orange', align='edge')
+
+# Add a line plot for temperature
+ax2 = ax.twinx()  # Create a secondary Y-axis
+ax2.plot(x, df_22['averagetemp'], color='green', marker='o', label='Average Temp (°F)', linestyle='dashed')
+
+# Labels and titles
+ax.set_xlabel('Season')
+ax.set_ylabel('Crime Count / Growth (%)')
+ax2.set_ylabel('Average Temperature (°F)')
+ax.set_title('Crime Count, Growth, and Temperature by Season')
+ax.set_xticks(x)
+ax.set_xticklabels(df_22['Season'])
+
+# Legends
+ax.legend(loc='upper left')
+ax2.legend(loc='upper right')
+
+# Grid and layout
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
