@@ -1,5 +1,38 @@
 # Introduction:
-This repository showcases completed work using Microsoft SQL Server and will be regularly updated with new SQL tasks. It serves as a record of my SQL skill development, including establishing relationships between fact and dimension tables, data cleaning, retrieval operations, and more. Each project includes a concise overview of the tasks and skills involved, providing a clear insight into my SQL journey.
+This repository contains a comprehensive data analysis project exploring two key datasets:
+
+1. #### COVID-19 Vaccination & Death Trends (Global and China-specific analysis)
+
+2. #### Chicago Crime Patterns (2018-2022) with weather correlation
+
+The project combines SQL data mining with Python visualization to uncover insights about:
+
+- Pandemic progression and vaccination rates
+
+- Crime trends in Chicago neighborhoods
+
+- Relationships between crime, weather, and temporal factors
+
+### Key Features:
+
+- 15+ SQL queries extracting meaningful patterns from relational databases
+
+- Interactive matplotlib/seaborn visualizations
+
+- Time-series analysis of health and crime data
+
+- Geographic and demographic correlations
+
+Built using:
+
+- Python (pandas, matplotlib, seaborn)
+
+- SQL Server (pyodbc)
+
+- Quarto for reproducible reporting
+
+Perfect for data professionals interested in public health analytics, urban crime patterns, or SQL/Python data mining techniques.
+
 ## 1. Covid Vaccine Project:
 ### dataset:
 Covid Vaccination
