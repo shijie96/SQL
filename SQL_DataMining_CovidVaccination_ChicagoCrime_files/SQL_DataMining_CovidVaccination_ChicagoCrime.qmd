@@ -3,7 +3,8 @@ title: "Exploring COVID-19 Vaccination and Chicago Crime Trends Through Data Min
 author: "Shijie Geng"
 date: today
 format: 
-  html
+  html:
+    css: styles.css
 execute: 
   echo: true     # Hide code
   warning: false   # Hide warnings
