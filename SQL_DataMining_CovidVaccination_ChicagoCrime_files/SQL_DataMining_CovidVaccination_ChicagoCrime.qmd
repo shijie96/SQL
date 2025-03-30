@@ -1,10 +1,11 @@
 ---
-title: "Data Mining on COVID-19 Vaccination and Chicago Crime Data Using SQL and Python"
+title: "Exploring COVID-19 Vaccination and Chicago Crime Trends Through Data Mining with SQL and Python"
 author: "Shijie Geng"
+date: today
 format: 
   html
 execute: 
-  echo: false      # Hide code
+  echo: true     # Hide code
   warning: false   # Hide warnings
   message: false
 ---
@@ -16,6 +17,7 @@ import pandas as pd
 import numpy as np
 import pyodbc
 import matplotlib.pyplot as plt
+pd.set_option('display.max_columns', None) 
 print(pyodbc.drivers())
 ```
 
@@ -44,13 +46,13 @@ print(df)
 ```
 
 2. List the total cases and total deaths, and calculate the percentage of deaths relative to the total COVID-19 cases in your country.
-```{python, echo = false, message = false, cache = true}
+```{python, message = false, cache = true}
 query_2 = "select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as Deathpercentage from Portfolio.dbo.CovidDeaths where location like '%china%' and total_cases is not null order by 1,2"
 
 df_1 = pd.read_sql(query_2, conn)
 df_1
 
-plt.figure(figsize = (12,12))
+plt.figure(figsize = (8,6))
 
 plt.plot(df_1['date'], df_1['Deathpercentage'], color = 'red')
 plt.xlabel('Date')
@@ -67,7 +69,7 @@ query_3 = "select location, date, total_cases, population, (total_cases/populati
 df_2 = pd.read_sql(query_3, conn)
 df_2
 
-plt.figure(figsize=(12,12))
+plt.figure(figsize=(8,6))
 plt.plot(df_2['date'], df_2['contractionpercentage'], label = 'Contraction Percentage', color = 'red')
 plt.xlabel('Date')
 plt.title('COVID-19 Total Cases and Contraction Percentage in China Over Time')
@@ -85,7 +87,7 @@ df_3
 
 df_sorted = df_3.sort_values(by = 'TotalDeathCount', ascending= False).head(20)
 
-plt.figure(figsize= (12,8))
+plt.figure(figsize= (8,6))
 plt.barh(df_sorted['location'], df_sorted['TotalDeathCount'], color = 'royalblue')
 plt.xlabel('Total Death Count')
 plt.ylabel('Location')
@@ -102,7 +104,7 @@ query_5 = "select location, max(cast(total_deaths as int)) as totalDeathCount fr
 df_4 = pd.read_sql(query_5, conn)
 df_4
 
-plt.figure(figsize = (12,8))
+plt.figure(figsize = (8,6))
 plt.bar(df_4['location'], df_4['totalDeathCount'], color = 'navy')
 plt.xlabel('Location')
 plt.setp(plt.gca().get_xticklabels(), rotation=45, ha='right')
@@ -119,7 +121,7 @@ query_6 = "select continent, max(cast(total_deaths as int)) as totaldeathcount f
 df_5 = pd.read_sql(query_6, conn)
 df_5
 
-plt.figure(figsize=(12,8))
+plt.figure(figsize=(8,6))
 plt.barh(df_5['continent'], df_5['totaldeathcount'], color = 'crimson')
 plt.xlabel('Total Death Count')
 plt.ylabel('continent')
@@ -199,9 +201,10 @@ df_10 = pd.read_sql(Query_10, conn).sort_values(by = 'Percentage', ascending= Fa
 df_10
 ```
 
-```{python}
-plt.figure(figsize=(12,8))
+```{python, message = false}
+plt.figure(figsize=(8,6))
 plt.pie(df_10['Percentage'], labels = df_10['crime_type'],  autopct='%1.1f%%',startangle= 150 )
+plt.show()
 ```
 
 4. What are the top ten communities that had the MOST number of crimes reported? Include the current population, density, and order by the number of reported crimes. 
@@ -223,7 +226,7 @@ x = np.arange(len(df_11['community_name']))  # Label locations
 bar_width = 0.3  
 
 # Create figure
-fig, ax = plt.subplots(figsize=(12, 6))
+fig, ax = plt.subplots(figsize=(8,6))
 
 # Plot bars
 ax.bar(x - bar_width, df_11['population'], width=bar_width, label='Population', color='blue')
@@ -303,7 +306,7 @@ df_15
 x = np.arange(len(df_15['Years']))
 bar_width = 0.3
 
-fig,ax = plt.subplots(figsize= (12,8))
+fig,ax = plt.subplots(figsize= (8,6))
 
 ax.bar(x-bar_width, df_15['Violentnum'], width = bar_width, label = 'Violentnum', color = 'blue')
 ax.bar(x, df_15['arrest'], width= bar_width, label= 'arrest', color = 'orange')
@@ -386,7 +389,7 @@ df_19
 ```
 
 ```{python}
-plt.figure(figsize= (12, 8))
+plt.figure(figsize= (8,6))
 
 plt.pie(df_19['Percentages'], labels= df_19['location'])
 plt.show()
@@ -409,7 +412,7 @@ df_20
 ```
 
 ```{python}
-plt.figure(figsize= (12, 8))
+plt.figure(figsize= (8,6))
 plt.scatter(df_20['Year'], df_20['crimeamount'], s = df_20['prev_year_crimes'], color = 'blue', alpha=0.6)
 plt.xlabel('Crime Amount')
 plt.ylabel('YoY Growth (%)')
@@ -431,10 +434,9 @@ df_21
 ```
 
 ```{python}
-plt.figure(figsize=(12, 8))
 
 # Plotting the Cluster Bar Chart
-fig, ax = plt.subplots(figsize=(12, 8))
+fig, ax = plt.subplots(figsize=(8,6))
 
 # Bar width
 bar_width = 0.35
@@ -485,7 +487,7 @@ df_22
 df_22.fillna(0, inplace=True)
 
 # Plotting
-fig, ax = plt.subplots(figsize=(12, 8))
+fig, ax = plt.subplots(figsize=(8,6))
 
 # X positions for clustered bars
 x = range(len(df_22))

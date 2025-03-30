@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Shijie Geng">
+<meta name="dcterms.date" content="2025-03-30">
 
-<title>Data Mining on COVID-19 Vaccination and Chicago Crime Data Using SQL and Python</title>
+<title>Exploring COVID-19 Vaccination and Chicago Crime Trends Through Data Mining with SQL and Python</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -49,7 +84,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Mining on COVID-19 Vaccination and Chicago Crime Data Using SQL and Python</h1>
+<h1 class="title">Exploring COVID-19 Vaccination and Chicago Crime Trends Through Data Mining with SQL and Python</h1>
 </div>
 
 
@@ -63,6 +98,12 @@ ul.task-list li input[type="checkbox"] {
           </div>
   </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 30, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -76,7 +117,13 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="covid-vaccination-project">Covid Vaccination Project</h2>
 <section id="load-neccesary-libraries" class="level3">
 <h3 class="anchored" data-anchor-id="load-neccesary-libraries">Load neccesary libraries</h3>
-<div id="c9f48dfe" class="cell" data-execution_count="1">
+<div id="d7eb9c84" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyodbc</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>) </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pyodbc.drivers())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>['SQL Server', 'SQL Server Native Client RDA 11.0', 'ODBC Driver 17 for SQL Server', 'Microsoft Access Driver (*.mdb, *.accdb)', 'Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)', 'Microsoft Access Text Driver (*.txt, *.csv)', 'Microsoft Access dBASE Driver (*.dbf, *.ndx, *.mdx)']</code></pre>
 </div>
@@ -84,9 +131,18 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below" class="level3">
 <h3 class="anchored" data-anchor-id="define-server-database-driver-trusted_connection-for-local-machine-database-connection-below">Define server, database, driver trusted_connection for local machine database connection below</h3>
+<div id="24f47e70" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>server <span class="op">=</span> <span class="vs">r"DESKTOP-FT8NVCI\SQLEXPRESS"</span> <span class="co"># use 'r' to handle backlashes</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>database <span class="op">=</span> <span class="st">"Portfolio"</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>driver <span class="op">=</span> <span class="st">"ODBC Driver 17 for SQL Server"</span> <span class="co"># check the driver version from above step</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>trusted_connection <span class="op">=</span> <span class="st">"yes"</span> <span class="co"># uses windows authentication</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="create-a-connection-to-database" class="level3">
 <h3 class="anchored" data-anchor-id="create-a-connection-to-database">Create a connection to Database</h3>
+<div id="1d95828e" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> pyodbc.<span class="ex">connect</span>(<span class="ss">f"DRIVER=</span><span class="sc">{</span>driver<span class="sc">}</span><span class="ss">;SERVER=</span><span class="sc">{</span>server<span class="sc">}</span><span class="ss">;DATABASE=</span><span class="sc">{</span>database<span class="sc">}</span><span class="ss">;Trusted_Connection=</span><span class="sc">{</span>trusted_connection<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 </section>
 <section id="data-mining-on-covidvaccination" class="level2">
@@ -94,7 +150,12 @@ ul.task-list li input[type="checkbox"] {
 <ol type="1">
 <li>List the cases of total covid contraction and deaths ordered by date and countries alphabetically</li>
 </ol>
-<div id="cb0a9308" class="cell" data-execution_count="4">
+<div id="67b9f16d" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>query_1 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, new_cases, population from Portfolio.dbo.CovidDeaths order by 1,2"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_sql(query_1, conn)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           location        date  total_cases  total_deaths  new_cases  \
 0       Afghanistan  2020-01-05          NaN           NaN        0.0   
@@ -128,11 +189,24 @@ ul.task-list li input[type="checkbox"] {
 <ol start="2" type="1">
 <li>List the total cases and total deaths, and calculate the percentage of deaths relative to the total COVID-19 cases in your country.</li>
 </ol>
-<div id="4467f1a5" class="cell" data-execution_count="5">
+<div id="76bcbccb" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>query_2 <span class="op">=</span> <span class="st">"select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as Deathpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 1,2"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df_1 <span class="op">=</span> pd.read_sql(query_2, conn)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>df_1</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plt.plot(df_1[<span class="st">'date'</span>], df_1[<span class="st">'Deathpercentage'</span>], color <span class="op">=</span> <span class="st">'red'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Percentage of Covid_19 Deaths'</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Covid19 Deaths Daily in China'</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">False</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-6-output-1.png" width="948" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-6-output-1.png" width="652" height="523" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -140,11 +214,20 @@ ul.task-list li input[type="checkbox"] {
 <ol start="3" type="1">
 <li>The total Covid-19 contraction cases verse the total population</li>
 </ol>
-<div id="ad5c0761" class="cell" data-execution_count="6">
+<div id="ac98ee4f" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>query_3 <span class="op">=</span> <span class="st">"select location, date, total_cases, population, (total_cases/population)*100 as contractionpercentage from Portfolio.dbo.CovidDeaths where location like '</span><span class="sc">%c</span><span class="st">hina%' and total_cases is not null order by 2"</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_2 <span class="op">=</span> pd.read_sql(query_3, conn)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df_2</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>plt.plot(df_2[<span class="st">'date'</span>], df_2[<span class="st">'contractionpercentage'</span>], label <span class="op">=</span> <span class="st">'Contraction Percentage'</span>, color <span class="op">=</span> <span class="st">'red'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Date'</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'COVID-19 Total Cases and Contraction Percentage in China Over Time'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-7-output-1.png" width="930" height="967" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-7-output-1.png" width="633" height="523" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -152,11 +235,25 @@ ul.task-list li input[type="checkbox"] {
 <ol start="4" type="1">
 <li>countries with highest Infection rate compared to population</li>
 </ol>
-<div id="5ff248ba" class="cell" data-execution_count="7">
+<div id="05b099bb" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>query_4 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as TotalDeathCount from dbo.CovidDeaths where total_deaths is not null group by location order by TotalDeathCount desc "</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df_3 <span class="op">=</span> pd.read_sql(query_4, conn)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df_3</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df_sorted <span class="op">=</span> df_3.sort_values(by <span class="op">=</span> <span class="st">'TotalDeathCount'</span>, ascending<span class="op">=</span> <span class="va">False</span>).head(<span class="dv">20</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>plt.barh(df_sorted[<span class="st">'location'</span>], df_sorted[<span class="st">'TotalDeathCount'</span>], color <span class="op">=</span> <span class="st">'royalblue'</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Total Death Count'</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Location'</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 20 Location with Height COVID - 19 Deaths'</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-8-output-1.png" width="1083" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-8-output-1.png" width="785" height="523" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -164,11 +261,23 @@ ul.task-list li input[type="checkbox"] {
 <ol start="5" type="1">
 <li>Find out the country with Highest death per population</li>
 </ol>
-<div id="66523078" class="cell" data-execution_count="8">
+<div id="ccd684a3" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>query_5 <span class="op">=</span> <span class="st">"select location, max(cast(total_deaths as int)) as totalDeathCount from dbo.CovidDeaths where continent is null group by location order by totalDeathCount desc"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_4 <span class="op">=</span> pd.read_sql(query_5, conn)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>df_4</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>plt.bar(df_4[<span class="st">'location'</span>], df_4[<span class="st">'totalDeathCount'</span>], color <span class="op">=</span> <span class="st">'navy'</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Location'</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.setp(plt.gca().get_xticklabels(), rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Total Death Count'</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 11 regions around the world with the Highest death per population'</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-9-output-1.png" width="948" height="769" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-9-output-1.png" width="651" height="635" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -176,11 +285,23 @@ ul.task-list li input[type="checkbox"] {
 <ol start="6" type="1">
 <li>Find the continents with highest death count per population</li>
 </ol>
-<div id="3e3d19f2" class="cell" data-execution_count="9">
+<div id="416aee6d" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select continent, max(cast(total_deaths as int)) as totaldeathcount from dbo.CovidDeaths where continent is not null group by continent order by totaldeathcount desc"</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df_5 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df_5</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>plt.barh(df_5[<span class="st">'continent'</span>], df_5[<span class="st">'totaldeathcount'</span>], color <span class="op">=</span> <span class="st">'crimson'</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Total Death Count'</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'continent'</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Top 5 continent with the highest COVID Death'</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>plt.gca().invert_yaxis()</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-10-output-1.png" width="1047" height="671" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-10-output-1.png" width="750" height="523" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -188,7 +309,11 @@ ul.task-list li input[type="checkbox"] {
 <ol start="7" type="1">
 <li>Calculate the percentage of new deaths relative to the total number of new cases for each continent</li>
 </ol>
-<div id="d9102a54" class="cell" data-execution_count="10">
+<div id="9d769372" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>query_6 <span class="op">=</span> <span class="st">"select date, sum(new_cases) as totalnewcases, sum(new_deaths) as totalnewdeaths, (sum(new_cases)/sum(new_cases)*100) as percentage from dbo.CovidDeaths where continent is not null and new_cases is not null group by date order by 1"</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df_6 <span class="op">=</span> pd.read_sql(query_6, conn)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df_6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="10">
 <div>
 
@@ -291,7 +416,11 @@ ul.task-list li input[type="checkbox"] {
 <ol start="8" type="1">
 <li>Calculate the percentage of vaccination related to the total population</li>
 </ol>
-<div id="e7b2bcb7" class="cell" data-execution_count="11">
+<div id="0d3f9bcf" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>query_7 <span class="op">=</span> <span class="st">"select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) as Rollingpeoplevaccinated, (SUM(convert(bigint, vac.new_vaccinations)) over (partition by dea.location order by dea.date) / dea.population) as VaccinationRate from dbo.CovidDeaths dea join dbo.CovidVaccination vac on dea.location = vac.location and dea.date = vac.date where dea.continent is not null and vac.new_vaccinations is not null order by 2, 3"</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>df_7 <span class="op">=</span> pd.read_sql(query_7, conn)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>df_7</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
 
@@ -431,10 +560,25 @@ ul.task-list li input[type="checkbox"] {
 <section id="chicago-crime-project" class="level2">
 <h2 class="anchored" data-anchor-id="chicago-crime-project">Chicago Crime Project</h2>
 <ol type="1">
-<li><p>Database, Server connection</p></li>
-<li><p>List the total number of reported crimes between 2018 and 2022</p></li>
+<li>Database, Server connection</li>
 </ol>
-<div id="c492aa75" class="cell" data-execution_count="14">
+<div id="3c9663c4" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>server <span class="op">=</span> <span class="vs">r"DESKTOP-FT8NVCI\SQLEXPRESS"</span> <span class="co"># use 'r' to handle backlashes</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>database <span class="op">=</span> <span class="st">"Chicago_crime_ and_weather"</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>driver <span class="op">=</span> <span class="st">"ODBC Driver 17 for SQL Server"</span> <span class="co"># check the driver version from above step</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>trusted_connection <span class="op">=</span> <span class="st">"yes"</span> <span class="co"># uses windows authentication</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="044f56c4" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> pyodbc.<span class="ex">connect</span>(<span class="ss">f"DRIVER=</span><span class="sc">{</span>driver<span class="sc">}</span><span class="ss">;SERVER=</span><span class="sc">{</span>server<span class="sc">}</span><span class="ss">;DATABASE=</span><span class="sc">{</span>database<span class="sc">}</span><span class="ss">;Trusted_Connection=</span><span class="sc">{</span>trusted_connection<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ol start="2" type="1">
+<li>List the total number of reported crimes between 2018 and 2022</li>
+</ol>
+<div id="e6cc9592" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Query_8 <span class="op">=</span> <span class="st">'select Year(c.reported_crime_date) as years, count(*) as [Reported Crime] from Chicago.crime as c where year(c.reported_crime_date) between 2018 and 2022 group by Year(c.reported_crime_date) order by Year(c.reported_crime_date)'</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df_8 <span class="op">=</span> pd.read_sql(Query_8, conn)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>df_8</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
@@ -474,7 +618,12 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="d36c8e32" class="cell" data-execution_count="15">
+<div id="e8a83edd" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>sns.set_theme()</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>sns.catplot(data <span class="op">=</span> df_8, kind <span class="op">=</span> <span class="st">'bar'</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="st">'years'</span>, y <span class="op">=</span> <span class="st">'Reported Crime'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -486,7 +635,16 @@ ul.task-list li input[type="checkbox"] {
 <ol start="3" type="1">
 <li>List the total number of homicides, batteries, and assults reported between 2018 and 2022</li>
 </ol>
-<div id="5ea0cd4c" class="cell" data-execution_count="16">
+<div id="8b636949" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Query_9 <span class="op">=</span> <span class="st">"""SELECT crime_type, COUNT(*) AS NumberOfCrime </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">FROM Chicago.crime </span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="st">WHERE crime_type IN ('homicide', 'battery', 'assault') </span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="st">GROUP BY crime_type;"""</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>df_9 <span class="op">=</span> pd.read_sql(Query_9, conn)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>df_9</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>sns.catplot(data <span class="op">=</span> df_9, x<span class="op">=</span> <span class="st">'crime_type'</span>, y <span class="op">=</span> <span class="st">'NumberOfCrime'</span>, kind <span class="op">=</span> <span class="st">'bar'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -498,7 +656,12 @@ ul.task-list li input[type="checkbox"] {
 <ol start="3" type="1">
 <li>Which are the most common crimes reported and what percentage amount are they from the total amount of reported crimes?</li>
 </ol>
-<div id="8a5c8688" class="cell" data-execution_count="17">
+<div id="61225635" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Query_10 <span class="op">=</span> <span class="st">""" with percentages as ( select crime_type, count(*) as number from chicago.crime group by crime_type)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">select crime_type, round(cast(number as float) * 100 /(select sum(number) from percentages),2) as [Percentage] from percentages</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>df_10 <span class="op">=</span> pd.read_sql(Query_10, conn).sort_values(by <span class="op">=</span> <span class="st">'Percentage'</span>, ascending<span class="op">=</span> <span class="va">False</span>).head(<span class="dv">15</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>df_10</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <div>
 
@@ -593,58 +756,14 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="656780dd" class="cell" data-execution_count="18">
-<div class="cell-output cell-output-display" data-execution_count="18">
-<pre><code>([&lt;matplotlib.patches.Wedge at 0x2753cb597d0&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbb54d0&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbb71d0&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbbd010&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbbe890&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbcc790&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbce750&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbd05d0&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbbe990&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753cbd3f50&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753d2d9c10&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753d2dba50&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753d2e56d0&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753d2e7450&gt;,
-  &lt;matplotlib.patches.Wedge at 0x2753d2f5210&gt;],
- [Text(-1.0760088355497333, -0.22848410408364742, 'theft'),
-  Text(-0.03836204841841132, -1.0993308661368257, 'battery'),
-  Text(0.8681096776869501, -0.6755631632247718, 'criminal damage'),
-  Text(1.0990836706776914, -0.044889696475381866, 'assault'),
-  Text(0.9820580490844486, 0.4955421154941798, 'deceptive practice'),
-  Text(0.6743085177023551, 0.8690845890671706, 'other offense'),
-  Text(0.3112403360920765, 1.0550495027197972, 'motor vehicle theft'),
-  Text(-0.008591771737708807, 1.0999664456056863, 'narcotics'),
-  Text(-0.27402838875209795, 1.065320816542101, 'burglary'),
-  Text(-0.5101448684372831, 0.9745523142485001, 'robbery'),
-  Text(-0.7028498717105333, 0.8461690480255628, 'weapons violation'),
-  Text(-0.8341278734391198, 0.7170988012484276, 'criminal trespass'),
-  Text(-0.9006337552319992, 0.6315527206312292, 'offense involving children'),
-  Text(-0.9277173231186924, 0.5910503941166844, 'sex offense'),
-  Text(-0.9449457842812646, 0.5630963192643561, 'public peace violation')],
- [Text(-0.5869139102998545, -0.12462769313653493, '23.3%'),
-  Text(-0.02092475368276981, -0.599635017892814, '18.9%'),
-  Text(0.47351436964742727, -0.3684889981226028, '11.2%'),
-  Text(0.5995001840060135, -0.024485288986571922, '8.6%'),
-  Text(0.5356680267733356, 0.27029569936046166, '7.6%'),
-  Text(0.3678046460194664, 0.4740461394911839, '6.5%'),
-  Text(0.16976745605022356, 0.5754815469380712, '5.3%'),
-  Text(-0.004686420947841167, 0.5999816976031015, '4.0%'),
-  Text(-0.14947003022841704, 0.581084081750237, '3.7%'),
-  Text(-0.27826083732942714, 0.5315739895900908, '3.6%'),
-  Text(-0.38337265729665443, 0.4615467534684887, '3.1%'),
-  Text(-0.4549788400577016, 0.3911448006809605, '2.2%'),
-  Text(-0.49125477558109043, 0.3444833021624887, '0.9%'),
-  Text(-0.506027630792014, 0.32239112406364595, '0.5%'),
-  Text(-0.5154249732443261, 0.30714344687146694, '0.4%')])</code></pre>
-</div>
+<div id="886ebf6e" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>plt.pie(df_10[<span class="st">'Percentage'</span>], labels <span class="op">=</span> df_10[<span class="st">'crime_type'</span>],  autopct<span class="op">=</span><span class="st">'</span><span class="sc">%1.1f%%</span><span class="st">'</span>,startangle<span class="op">=</span> <span class="dv">150</span> )</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-19-output-2.png" width="748" height="611" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-19-output-1.png" width="636" height="463" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -652,7 +771,14 @@ ul.task-list li input[type="checkbox"] {
 <ol start="4" type="1">
 <li>What are the top ten communities that had the MOST number of crimes reported? Include the current population, density, and order by the number of reported crimes.</li>
 </ol>
-<div id="a49bbd09" class="cell" data-execution_count="19">
+<div id="b61fa2f2" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Query_11 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="st">select top 10 n.community_name, n.population as [population], n.density, count(c.crime_type) as [Number of Crimes] from chicago.crime c join chicago.community n on c.community_id = n.community_id group by n.community_name, n.population, n.density order by [Number of Crimes] desc</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>df_11 <span class="op">=</span> pd.read_sql(Query_11, conn)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>df_11</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
@@ -744,11 +870,35 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="85b578b9" class="cell" data-execution_count="20">
+<div id="3eb1f7b4" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set positions and width for bars</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="bu">len</span>(df_11[<span class="st">'community_name'</span>]))  <span class="co"># Label locations</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>bar_width <span class="op">=</span> <span class="fl">0.3</span>  </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create figure</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot bars</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>ax.bar(x <span class="op">-</span> bar_width, df_11[<span class="st">'population'</span>], width<span class="op">=</span>bar_width, label<span class="op">=</span><span class="st">'Population'</span>, color<span class="op">=</span><span class="st">'blue'</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>ax.bar(x, df_11[<span class="st">'density'</span>], width<span class="op">=</span>bar_width, label<span class="op">=</span><span class="st">'Density'</span>, color<span class="op">=</span><span class="st">'orange'</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>ax.bar(x <span class="op">+</span> bar_width, df_11[<span class="st">'Number of Crimes'</span>], width<span class="op">=</span>bar_width, label<span class="op">=</span><span class="st">'Number of Crimes'</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Format x-axis</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels(df_11[<span class="st">'community_name'</span>], rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels and title</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Values"</span>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Community Name"</span>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Clustered Column Chart of Community Data"</span>)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Show plot</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-21-output-1.png" width="994" height="600" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-21-output-1.png" width="696" height="600" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -756,7 +906,13 @@ ul.task-list li input[type="checkbox"] {
 <ol start="5" type="1">
 <li>What are the top communities that had the LEAST number of crimes reported? Include the current population, density , and order by the number of reported crimes.</li>
 </ol>
-<div id="9c162237" class="cell" data-execution_count="21">
+<div id="2ced2257" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>Query_12 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="st">select top 1 n.community_name, n.population as [population], n.density, count(c.crime_type) as [Number of Crimes] from chicago.crime c join chicago.community n on c.community_id = n.community_id group by n.community_name, n.population, n.density order by [Number of Crimes] ASC</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>df_12 <span class="op">=</span> pd.read_sql(Query_12, conn)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>df_12</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <div>
 
@@ -788,7 +944,17 @@ ul.task-list li input[type="checkbox"] {
 <ol start="6" type="1">
 <li>What month had the most crimes reported and what was the average and median temperature high in the last five years?</li>
 </ol>
-<div id="6e1559df" class="cell" data-execution_count="22">
+<div id="6bdf9e50" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Query_13 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="st">with subquery as (select w.weather_date,</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="st">c.crime_type, temp_high, PERCENTILE_DISC(0.5) within group (order by temp_high) over (partition by (month(w.weather_date))) as mediantemp from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date group by w.weather_date,c.crime_type, w.temp_high)</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="st">select top 1 MONTH(weather_date) AS Mon,</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="st">COUNT(crime_type) OVER (PARTITION BY MONTH(weather_date)) AS crimenum, AVG(temp_high) OVER (PARTITION BY MONTH(weather_date)) AS averagehigh, AVG(mediantemp) OVER (PARTITION BY MONTH(weather_date)) AS mediantemp from subquery group by Month(weather_date), temp_high, mediantemp, crime_type</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>df_13 <span class="op">=</span> pd.read_sql(Query_13, conn)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>df_13</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 <div>
 
@@ -820,7 +986,21 @@ ul.task-list li input[type="checkbox"] {
 <ol start="7" type="1">
 <li>What month had the most homicides reported and what was the average and median temperature high in the last five years?</li>
 </ol>
-<div id="e9a59c21" class="cell" data-execution_count="23">
+<div id="6aa26e79" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>Query_14 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="st">with subquery as (select w.weather_date,</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="st">c.crime_type as homicide, w.temp_high</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="st">from chicago.crime c join chicago.weather w</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="st">on c.reported_crime_date = w.weather_date</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="st">where c.crime_type = 'homicide')</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="st">select top 1 MONTH(weather_date) as Mon,</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="st">count(homicide) over (partition by (MONTH(weather_date))) as homicount, AVG(temp_high) OVER (PARTITION BY MONTH(weather_date)) AS averagehigh, PERCENTILE_DISC(0.5) within group (order by temp_high) over (partition by (month(weather_date))) as mediantemp from subquery</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="st">group by MONTH(weather_date), temp_high, homicide order by homicount desc</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>df_14 <span class="op">=</span> pd.read_sql(Query_14, conn)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>df_14</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="23">
 <div>
 
@@ -852,7 +1032,14 @@ ul.task-list li input[type="checkbox"] {
 <ol start="8" type="1">
 <li>List the most violent year and the number of arrests with percentage. Order by the number of crimes in descending order. Determine the most violent year by the number of reported Homicides, Assaults and Battery for that year.</li>
 </ol>
-<div id="0768f2da" class="cell" data-execution_count="24">
+<div id="b7ad9159" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Query_15 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="st">select Year(reported_crime_date) as Years,</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="st">count(crime_type) as[Violentnum], sum(cast(arrest as float)) as arrest, round(sum(cast(arrest as float)) * 100/ count(crime_type),2) as percentages from chicago.crime where crime_type in ('homicide', 'assault', 'battery') group by Year(reported_crime_date)</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>df_15 <span class="op">=</span> pd.read_sql(Query_15, conn)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>df_15</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 
@@ -902,11 +1089,28 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="dd1be50d" class="cell" data-execution_count="25">
+<div id="8384ddd7" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="bu">len</span>(df_15[<span class="st">'Years'</span>]))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>bar_width <span class="op">=</span> <span class="fl">0.3</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>fig,ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">-</span>bar_width, df_15[<span class="st">'Violentnum'</span>], width <span class="op">=</span> bar_width, label <span class="op">=</span> <span class="st">'Violentnum'</span>, color <span class="op">=</span> <span class="st">'blue'</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>ax.bar(x, df_15[<span class="st">'arrest'</span>], width<span class="op">=</span> bar_width, label<span class="op">=</span> <span class="st">'arrest'</span>, color <span class="op">=</span> <span class="st">'orange'</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">+</span>bar_width, df_15[<span class="st">'percentages'</span>], width<span class="op">=</span>bar_width, label <span class="op">=</span> <span class="st">'percentages'</span>, color <span class="op">=</span> <span class="st">'red'</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels(df_15[<span class="st">'Years'</span>], rotation <span class="op">=</span> <span class="dv">45</span>, ha <span class="op">=</span> <span class="st">'right'</span>)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Values'</span>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Year'</span>)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-26-output-1.png" width="985" height="676" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-26-output-1.png" width="688" height="528" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -914,7 +1118,16 @@ ul.task-list li input[type="checkbox"] {
 <ol start="9" type="1">
 <li>List the day of the week, year, average precipitation, average high temperature and the highest number of reported crimes for days with and without precipitation.</li>
 </ol>
-<div id="1f1c3c91" class="cell" data-execution_count="26">
+<div id="27cff7da" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>Query_16 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="st">select day(c.reported_crime_date) as daayofmonth, DATEPART(WEEKDAY, c.reported_crime_date) as weekdays,</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="st">DATEPART(DAYOFYEAR, c.reported_crime_date) as [Day of Year], AVG(w.precipitation) as avgprecip, avg(w.temp_high) as avgtemp,</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="st">count(c.crime_type) as [reportednum] from chicago.crime c join chicago.weather w</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="st">on c.reported_crime_date = w.weather_date</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="st">group by reported_crime_date order by reportednum</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>df_16 <span class="op">=</span> pd.read_sql(Query_16, conn)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>df_16</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="26">
 <div>
 
@@ -1041,7 +1254,13 @@ ul.task-list li input[type="checkbox"] {
 <ol start="10" type="1">
 <li>List the days with the most reported crimes when there is zero precipitation and the day when precipitation is greater than 5. Including the day of the week, high temperature, amount and precipitation and the total number of reported crimes for that day.</li>
 </ol>
-<div id="b12d41cf" class="cell" data-execution_count="27">
+<div id="e382afc3" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>Query_17 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="st">select DATEPART(WEEKDAY, c.reported_crime_date) as [Day of Week], w.temp_high, count(temp_high) as [Crime Amount], sum(cast(w.precipitation as float)) as Precipitation from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date group by DATEPART(WEEKDAY, c.reported_crime_date), temp_high having sum(cast(w.precipitation as float)) &lt;&gt;0 and sum(cast(w.precipitation as float)) &gt; 5</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>df_17 <span class="op">=</span> pd.read_sql(Query_17, conn)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>df_17</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="27">
 <div>
 
@@ -1144,7 +1363,18 @@ ul.task-list li input[type="checkbox"] {
 <ol start="11" type="1">
 <li>List the most consecutive days where a homicide occurred between 2018-2022 and the timeframe.</li>
 </ol>
-<div id="36953380" class="cell" data-execution_count="28">
+<div id="c95534b7" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>Query_18 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="st">WITH homicidedate as (select c.reported_crime_date, ROW_NUMBER() over (order by c.reported_crime_date) as rownumber</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="st">from chicago.crime c where c.crime_type = 'homicide'), consecutive_date as (</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="st">select reported_crime_date, DATEADD(day, -ROW_NUMBER() over (order by reported_crime_date), reported_crime_date) as grp from homicidedate)</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="st">select TOP 1 MIN(reported_crime_date) as [start_date], MAX(reported_crime_date) as end_date, DATEDIFF(day, MIN(reported_crime_date), MAX(reported_crime_date)) + 1 as consecutive</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="st">from consecutive_date group by grp order by consecutive desc</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>df_18 <span class="op">=</span> pd.read_sql(Query_18, conn)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>df_18</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="28">
 <div>
 
@@ -1174,7 +1404,25 @@ ul.task-list li input[type="checkbox"] {
 <ol start="12" type="1">
 <li>What are the top 10 most common locations for reported crimes and the number of reported crime ( add percentage) depending on the temperature?</li>
 </ol>
-<div id="76ea85ab" class="cell" data-execution_count="29">
+<div id="0a6791f1" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>Query_19 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="st">WITH subquery AS (</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT </span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="st">        CAST(location_description AS NVARCHAR(MAX)) AS location, </span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(crime_type) AS reportedcrime,</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="st">        RANK() OVER (ORDER BY COUNT(*) DESC) AS rank</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM chicago.crime</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY CAST(location_description AS NVARCHAR(MAX))</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="st">)</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="st">SELECT TOP 10 </span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="st">    location, </span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="st">    ROUND(reportedcrime * 100.0 / SUM(CAST(reportedcrime AS FLOAT)) OVER (), 3) AS Percentages</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="st">FROM subquery</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="st">ORDER BY Percentages DESC;</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>df_19 <span class="op">=</span> pd.read_sql(Query_19, conn)</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>df_19</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="29">
 <div>
 
@@ -1244,11 +1492,15 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="d0f96a99" class="cell" data-execution_count="30">
+<div id="3ae38a4b" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>plt.pie(df_19[<span class="st">'Percentages'</span>], labels<span class="op">=</span> df_19[<span class="st">'location'</span>])</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-31-output-1.png" width="815" height="611" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-31-output-1.png" width="691" height="463" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1256,7 +1508,18 @@ ul.task-list li input[type="checkbox"] {
 <ol start="13" type="1">
 <li>Calculate the year-over-year growth in the number of reported crimes.</li>
 </ol>
-<div id="1a116d67" class="cell" data-execution_count="31">
+<div id="d46feb11" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>Query_20 <span class="op">=</span> <span class="st">"""with subquery as (select</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="st">Year(c.reported_crime_date) as [Year],</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="st">cast(count(*) as float) as crimeamount</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="st">from chicago.crime c group by Year(c.reported_crime_date))</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="st">select [Year], crimeamount, LAG(crimeamount) over (order by [Year]) as prev_year_crimes,</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="st">round((crimeamount-LAG(crimeamount) over (order by [Year])) *100/ NULLIF(LAG(crimeamount) over (order by [Year]),0),2) as YoYgrowth from subquery</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>df_20 <span class="op">=</span> pd.read_sql(Query_20, conn)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>df_20</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
 <div>
 
@@ -1306,11 +1569,18 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="f975b554" class="cell" data-execution_count="32">
+<div id="9b749c94" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span> (<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>plt.scatter(df_20[<span class="st">'Year'</span>], df_20[<span class="st">'crimeamount'</span>], s <span class="op">=</span> df_20[<span class="st">'prev_year_crimes'</span>], color <span class="op">=</span> <span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Crime Amount'</span>)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'YoY Growth (%)'</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Year-over-Year Crime Growth with Previous Year Crimes as Size'</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-33-output-1.png" width="994" height="677" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-33-output-1.png" width="696" height="529" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1318,7 +1588,14 @@ ul.task-list li input[type="checkbox"] {
 <ol start="14" type="1">
 <li>Calculate the year over year growth in the number of reported domestic violence crimes.</li>
 </ol>
-<div id="06ad2244" class="cell" data-execution_count="33">
+<div id="0a97a600" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>Query_21 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="st">with subquery as (select Year(c.reported_crime_date) as [Year], sum(cast(c.domestic as int)) as violence from chicago.crime c group by Year(c.reported_crime_date))</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="st">select Year, violence, LAG(violence) over (order by Year) as pre_year_domes, (violence - LAG(violence) over (order by Year)) * 100/ LAG(violence) over (order by Year) as YoYGrowth from subquery</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>df_21 <span class="op">=</span> pd.read_sql(Query_21, conn)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>df_21</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="33">
 <div>
 
@@ -1368,14 +1645,35 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="0187121d" class="cell" data-execution_count="34">
-<div class="cell-output cell-output-display">
-<pre><code>&lt;Figure size 1152x768 with 0 Axes&gt;</code></pre>
-</div>
+<div id="b7715c23" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the Cluster Bar Chart</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar width</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>bar_width <span class="op">=</span> <span class="fl">0.35</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># X positions</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="bu">len</span>(df_21[<span class="st">'Year'</span>]))</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting both bars side by side</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>ax.bar(x <span class="op">-</span> bar_width<span class="op">/</span><span class="dv">2</span>, df_21[<span class="st">'violence'</span>], width<span class="op">=</span>bar_width, label<span class="op">=</span><span class="st">'Violence Cases'</span>, color<span class="op">=</span><span class="st">'skyblue'</span>)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>ax.bar(x <span class="op">+</span> bar_width<span class="op">/</span><span class="dv">2</span>, df_21[<span class="st">'pre_year_domes'</span>], width<span class="op">=</span>bar_width, label<span class="op">=</span><span class="st">'YoY Growth (%)'</span>, color<span class="op">=</span><span class="st">'orange'</span>)</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels and title</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Year'</span>)</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Count'</span>)</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Violence Cases and pre_year_domes'</span>)</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x)</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels(df_21[<span class="st">'Year'</span>])</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Display chart</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-35-output-2.png" width="985" height="677" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-35-output-1.png" width="688" height="529" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -1383,7 +1681,24 @@ ul.task-list li input[type="checkbox"] {
 <ol start="15" type="1">
 <li>List the number of crimes reported and seasonal growth for each astronomical season and what was the average temperature for each season in 2022? Use a conditional statement to display either a Gain/Loss for the season and the season over season growth.</li>
 </ol>
-<div id="ccbea857" class="cell" data-execution_count="35">
+<div id="5a8af36c" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>Query_22 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="st">with subquery as(select c.reported_crime_date, case when Month( c.reported_crime_date) in (12,1,2) Then 'Winter' when Month( c.reported_crime_date) in (3,4,5) Then 'Spring' when Month( c.reported_crime_date) in (6,7,8) Then 'Summer'</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="st">else 'Fall' end as Season, c.crime_type,w.average from chicago.crime c join chicago.weather w on c.reported_crime_date = w.weather_date),</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="st">subquery_2 as (select Year(reported_crime_date) as [Year], Season,</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="st">count(crime_type) as crimenumber, avg(average) as averagetemp from subquery</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="st">--where Year(reported_crime_date) = 2020</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="st">group by Season, Year(reported_crime_date))</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="st">select Year, Season, LAG(crimenumber) over (order by Season) as pre_crime_count,</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="st">(crimenumber - LAG(crimenumber) over (order by Season)) *100/ LAG(crimenumber) over (order by Season) as SoSgrowth, averagetemp</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="st">from subquery_2 WHERE Year = 2022</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>df_22 <span class="op">=</span> pd.read_sql(Query_22, conn)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>df_22</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="35">
 <div>
 
@@ -1438,11 +1753,43 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<div id="ea69e5e0" class="cell" data-execution_count="36">
+<div id="ecbe0db6" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df_22.fillna(<span class="dv">0</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">6</span>))</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co"># X positions for clustered bars</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="bu">range</span>(<span class="bu">len</span>(df_22))</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot bars</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>ax.bar(x, df_22[<span class="st">'pre_crime_count'</span>], width<span class="op">=</span><span class="fl">0.4</span>, label<span class="op">=</span><span class="st">'Pre-Crime Count'</span>, color<span class="op">=</span><span class="st">'skyblue'</span>, align<span class="op">=</span><span class="st">'center'</span>)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>ax.bar(x, df_22[<span class="st">'SoSgrowth'</span>], width<span class="op">=</span><span class="fl">0.4</span>, label<span class="op">=</span><span class="st">'SoS Growth (%)'</span>, color<span class="op">=</span><span class="st">'orange'</span>, align<span class="op">=</span><span class="st">'edge'</span>)</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a line plot for temperature</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>ax2 <span class="op">=</span> ax.twinx()  <span class="co"># Create a secondary Y-axis</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>ax2.plot(x, df_22[<span class="st">'averagetemp'</span>], color<span class="op">=</span><span class="st">'green'</span>, marker<span class="op">=</span><span class="st">'o'</span>, label<span class="op">=</span><span class="st">'Average Temp (°F)'</span>, linestyle<span class="op">=</span><span class="st">'dashed'</span>)</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels and titles</span></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Season'</span>)</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Crime Count / Growth (%)'</span>)</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Average Temperature (°F)'</span>)</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Crime Count, Growth, and Temperature by Season'</span>)</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x)</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>ax.set_xticklabels(df_22[<span class="st">'Season'</span>])</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Legends</span></span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper left'</span>)</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper right'</span>)</span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Grid and layout</span></span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-37-output-1.png" width="1135" height="752" class="figure-img"></p>
+<p><img src="SQL_DataMining_CovidVaccination_ChicagoCrime_files/figure-html/cell-37-output-1.png" width="751" height="560" class="figure-img"></p>
 </figure>
 </div>
 </div>
